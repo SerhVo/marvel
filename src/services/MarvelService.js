@@ -24,10 +24,14 @@ class MarvelService {
     return this._transformCharacter(res.data.results[0]);
   };
   _transformCharacter = (char) => {
+    const description =
+      char.description && char.description.length > 150
+        ? char.description.slice(0, 150) + "..."
+        : char.description || "Sorry, description not found";
     return {
       name: char.name,
       thumbnail: char.thumbnail.path + "." + char.thumbnail.extension,
-      description: char.description,
+      description: description,
       homepage: char.urls[0].url,
       wiki: char.urls[1].url,
     };
