@@ -21,6 +21,10 @@ class CharInfo extends Component {
       this.updateChar();
     }
   }
+//   componentDidCatch(error, info) {
+//       console.error("Error in CharInfo component", error, info);
+//       this.setState({ error: true });
+//   }
 
   updateChar = () => {
     const { charId } = this.props;
@@ -65,14 +69,14 @@ class CharInfo extends Component {
 }
 
 const View = ({ char }) => {
-    const { name, description, thumbnail, homepage, wiki, comics } = char;
-       let imgStyle = { objectFit: "cover" };
-       if (
-         thumbnail ===
-         "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
-       ) {
-         imgStyle = { objectFit: "unset" };
-       }
+  const { name, description, thumbnail, homepage, wiki, comics } = char;
+  let imgStyle = { objectFit: "cover" };
+  if (
+    thumbnail ===
+    "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
+  ) {
+    imgStyle = { objectFit: "unset" };
+  }
 
   return (
     <>
