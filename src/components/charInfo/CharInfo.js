@@ -1,6 +1,6 @@
 import { Component } from "react";
+// import PropTypes from "prop-types";
 import "./charInfo.scss";
-import thor from "../../resources/img/thor.jpeg";
 import Skeleton from "../skeleton/Skeleton";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";

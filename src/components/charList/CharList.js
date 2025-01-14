@@ -11,8 +11,9 @@ class CharList extends Component {
     loading: true,
     error: false,
     newItemLoading: false,
-    offset: 1545,
+    offset: 210,
     charEnded: false,
+    selectedCharId: null, // Хранит ID выбранного элемента
   };
 
   marvelService = new MarvelService();
@@ -48,8 +49,16 @@ class CharList extends Component {
     this.setState({ loading: false, error: true });
   };
 
+  onCharSelected = (id) => {
+    this.setState({ selectedCharId: id }); // Устанавливаем выбранный ID
+    this.props.onCharSelected(id); // Вызываем переданный из props обработчик
+  };
+
   renderItems(arr = []) {
     if (!Array.isArray(arr)) return null;
+
+    const { selectedCharId } = this.state; // Получаем ID выбранного элемента
+
     const items = arr.map((item) => {
       let imgStyle = { objectFit: "cover" };
       if (
@@ -59,17 +68,24 @@ class CharList extends Component {
         imgStyle = { objectFit: "unset" };
       }
 
+      // Добавляем класс "char_selected", если текущий элемент выбран
+      const itemClass =
+        item.id === selectedCharId
+          ? "char__item char__item_selected"
+          : "char__item";
+
       return (
         <li
-          className="char__item"
+          className={itemClass}
           key={item.id}
-          onClick={() => this.props.onCharSelected(item.id)}
+          onClick={() => this.onCharSelected(item.id)}
         >
           <img src={item.thumbnail} alt={item.name} style={imgStyle} />
           <div className="char__name">{item.name}</div>
         </li>
       );
     });
+
     return <ul className="char__grid">{items}</ul>;
   }
 
@@ -102,3 +118,6 @@ class CharList extends Component {
 }
 
 export default CharList;
+
+
+
