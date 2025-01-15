@@ -1,5 +1,4 @@
 import "./charList.scss";
-// import abyss from "../../resources/img/abyss.jpg";
 import { Component } from "react";
 import MarvelService from "../../services/MarvelService";
 import ErrorMessage from "../errorMessage/ErrorMessage";
@@ -7,22 +6,31 @@ import Spinner from "../spinner/Spinner";
 
 class CharList extends Component {
   state = {
-    charList: [],
     loading: true,
     error: false,
     newItemLoading: false,
-    offset: 210,
     charEnded: false,
-    selectedCharId: null, // Хранит ID выбранного элемента
   };
 
   marvelService = new MarvelService();
 
   componentDidMount() {
-    this.onRequest();
+    const { charList } = this.props;
+    if (charList && charList.length > 0) {
+      this.setState({ loading: false });
+    } else {
+      this.onRequest();
+    }
   }
 
-  onRequest = (offset) => {
+  componentDidUpdate(prevProps) {
+    if (prevProps.offset !== this.props.offset) {
+      this.onRequest();
+    }
+  }
+
+  onRequest = () => {
+    const { offset } = this.props;
     this.onCharListLoading();
     this.marvelService
       .getAllCharacters(offset)
@@ -30,34 +38,28 @@ class CharList extends Component {
       .catch(this.onError);
   };
 
-  onCharListLoading = () => {
-    this.setState({ newItemLoading: true });
-  };
-
   onCharListLoaded = (newCharList) => {
-    const isCharEnded = newCharList.length < 9; // Проверяем, если меньше 9 объектов
-    this.setState(({ offset, charList }) => ({
-      charList: [...charList, ...newCharList],
+    const isCharEnded = newCharList.length < 9;
+    this.setState({
       loading: false,
       newItemLoading: false,
-      offset: offset + 9,
-      charEnded: isCharEnded, // Обновляем состояние
-    }));
+      charEnded: isCharEnded,
+    });
+    this.props.onCharListLoaded(newCharList); // Обновляем список в родительском компоненте
+  };
+
+  onCharListLoading = () => {
+    this.setState({ newItemLoading: true });
   };
 
   onError = () => {
     this.setState({ loading: false, error: true });
   };
 
-  onCharSelected = (id) => {
-    this.setState({ selectedCharId: id }); // Устанавливаем выбранный ID
-    this.props.onCharSelected(id); // Вызываем переданный из props обработчик
-  };
-
-  renderItems(arr = []) {
+  renderItems(arr) {
     if (!Array.isArray(arr)) return null;
 
-    const { selectedCharId } = this.state; // Получаем ID выбранного элемента
+    const { selectedChar } = this.props; // Получаем ID выбранного персонажа из props
 
     const items = arr.map((item) => {
       let imgStyle = { objectFit: "cover" };
@@ -68,9 +70,8 @@ class CharList extends Component {
         imgStyle = { objectFit: "unset" };
       }
 
-      // Добавляем класс "char_selected", если текущий элемент выбран
       const itemClass =
-        item.id === selectedCharId
+        item.id === selectedChar
           ? "char__item char__item_selected"
           : "char__item";
 
@@ -78,7 +79,7 @@ class CharList extends Component {
         <li
           className={itemClass}
           key={item.id}
-          onClick={() => this.onCharSelected(item.id)}
+          onClick={() => this.props.onCharSelected(item.id)}
         >
           <img src={item.thumbnail} alt={item.name} style={imgStyle} />
           <div className="char__name">{item.name}</div>
@@ -86,12 +87,24 @@ class CharList extends Component {
       );
     });
 
-    return <ul className="char__grid">{items}</ul>;
+    const isCharactersPage = window.location.pathname === "/characters";
+
+    const gridStyle = {
+      gridTemplateColumns: isCharactersPage
+        ? "repeat(5, 200px)"
+        : "repeat(3, 200px)",
+    };
+
+    return (
+      <ul className="char__grid" style={gridStyle}>
+        {items}
+      </ul>
+    );
   }
 
   render() {
-    const { charList, loading, error, newItemLoading, offset, charEnded } =
-      this.state;
+    const { charList } = this.props;
+    const { loading, error, newItemLoading, charEnded } = this.state;
 
     const items = this.renderItems(charList);
 
@@ -104,20 +117,18 @@ class CharList extends Component {
         {errorMessage}
         {spinner}
         {content}
-        <button
-          className="button button__main button__long"
-          disabled={newItemLoading}
-          style={charEnded ? { display: "none" } : {}}
-          onClick={() => this.onRequest(offset)}
-        >
-          <div className="inner">load more</div>
-        </button>
+        {!charEnded && (
+          <button
+            className="button button__main button__long"
+            disabled={newItemLoading}
+            onClick={this.props.onLoadMore}
+          >
+            <div className="inner">load more</div>
+          </button>
+        )}
       </div>
     );
   }
 }
 
 export default CharList;
-
-
-

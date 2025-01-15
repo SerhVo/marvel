@@ -50,6 +50,7 @@ class CharInfo extends Component {
   onError = () => {
     this.setState({ loading: false, error: true });
   };
+  
 
   render() {
     const { char, loading, error } = this.state;
@@ -77,11 +78,19 @@ const View = ({ char }) => {
   ) {
     imgStyle = { objectFit: "unset" };
   }
+  const isComicsPage = window.location.pathname === "/comics";
+  const gridStyle = {
+    gridTemplateColumns: isComicsPage ? "auto" : "150px auto",
+  };
 
+  const charBasicsImg = {
+    width: isComicsPage ? "450px" : "150px",
+    height: isComicsPage ? "auto" : "150px",
+  };
   return (
     <>
-      <div className="char__basics">
-        <img src={thumbnail} alt={name} style={imgStyle} />
+      <div className="char__basics" style={gridStyle}>
+        <img src={thumbnail} alt={name} style={(imgStyle, charBasicsImg)} />
         <div>
           <div className="char__info-name">{name}</div>
           <div className="char__btns">
